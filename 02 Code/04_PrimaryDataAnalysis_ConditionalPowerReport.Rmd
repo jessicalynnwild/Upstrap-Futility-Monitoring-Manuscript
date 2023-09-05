@@ -1,0 +1,174 @@
+---
+title: "Conditional Power Report"
+author:
+ - name: Jess Wild
+date: "08/01/2023"
+output: html_document
+self_contained: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r workspace, message=FALSE,warning=FALSE}
+#import packages
+library(tidyverse)
+library(kableExtra)
+
+#set working directory
+setwd('C:/Users/wildje/Desktop/Dissertation/Paper 1')
+
+#load data
+load('./01 Data/Data Processed/dat_final_output_tab.RData')
+load('./01 Data/Data Processed/dat_final_output_tab_relative.RData')
+load('./01 Data/Data Processed/dat_final_output_fig.RData')
+
+#label reference datasets
+dat_final_output_tab_orig = dat_final_output_tab
+dat_final_output_tab_relative_orig = dat_final_output_tab_relative
+dat_final_output_fig_orig = dat_final_output_fig
+```
+
+## Three Stopping Point Results
+
+### Tabular Results
+
+```{r raw table 1, out.width = "10in"}
+#reformat for tabular summary 
+dat_final_output_tab <- dat_final_output_tab_orig %>% 
+  filter(Method %in% c("CU","AU","GU","OBF","PO",'CP 1%','CP 5%','CP 10%','CP 20%','FS')) 
+
+#generate table
+dat_final_output_tab %>%
+  kbl(caption = "**Table S1: Simulation Results Comparing Upstrapping to Conditional Power with Three Stopping Points**",
+      col.names = c('Method','N',
+                    'Expected N *mean(sd)*','Proportion Stopped','Type I Error',
+                    'Expected N *mean(sd)*','Proportion Stopped','Power')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 2, "***Null***" = 3, "***Alternative***" = 3))
+```
+
+```{r relative table 1, out.width = "10in"}
+#reformat for tabular summary 
+dat_final_output_tab_relative <- dat_final_output_tab_relative_orig %>% 
+  filter(Method %in% c("CU","AU","GU","OBF","PO",'CP 1%','CP 5%','CP 10%','CP 20%')) 
+
+#generate table
+dat_final_output_tab_relative %>%
+  kbl(caption = "**Table S2: Relative Simulation Results Comparing Upstrapping to Conditional Power with Three Stopping Points**",
+      col.names = c('Method','N',
+                    'Expected N Ratio','Type I Error Difference',
+                    'Expected N Ratio','Power Difference')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 2, "***Null***" = 2, "***Alternative***" = 2))
+```
+
+### Data Visualizations
+
+```{r figures 1,fig.show="hold", out.width="33%",fig.cap='**Figure S1:** Bar Plots Comparing Upstrapping to Conditional Power with Three Stopping Points',fig.align='center'}
+#reformat for visual summary 
+dat_final_output_fig <- dat_final_output_fig_orig %>% 
+  filter(Method %in% c("CU","AU","GU","OBF","PO",'CP 1%','CP 5%','CP 10%','CP 20%','FS'))
+
+#bar plots
+ggplot(dat_final_output_fig, aes(x=Method, y=ExpectedN_FO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FO_mean-ExpectedN_FO_sd, ymax=ExpectedN_FO_mean+ExpectedN_FO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size')
+
+ggplot(dat_final_output_fig, aes(x=Method, y=RejectionRate_FO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate') +
+  ylim(0,1)
+
+ggplot(dat_final_output_fig, aes(x=Method, y=DecisionFO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Interim Stopping Rate') +
+  ylim(0,1)
+
+```
+
+## Two Stopping Point Results
+
+### Tabular Results
+
+```{r table 2, out.width = "10in"}
+#reformat for tabular summary 
+dat_final_output_tab_no25 <- dat_final_output_tab_orig %>% 
+  filter(Method %in% c("0.50-0.75 CU","0.50-0.75 AU","0.50-0.75 GU","0.50-0.75 OBF","0.50-0.75 PO",'0.50-0.75 CP 1%','0.50-0.75 CP 5%','0.50-0.75 CP 10%','0.50-0.75 CP 20%','FS'))
+
+#generate table
+dat_final_output_tab_no25 %>%
+  kbl(caption = "**Table S3: Simulation Results Comparing Upstrapping to Conditional Power with Two Stopping Points**",
+      col.names = c('Method','N',
+                    'Expected N *mean(sd)*','Proportion Stopped','Type I Error',
+                    'Expected N *mean(sd)*','Proportion Stopped','Power')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 2, "***Null***" = 3, "***Alternative***" = 3))
+```
+
+```{r relative table 2, out.width = "10in"}
+#reformat for tabular summary 
+dat_final_output_tab_relative_no25 <- dat_final_output_tab_relative_orig %>% 
+  filter(Method %in% c("0.50-0.75 CU","0.50-0.75 AU","0.50-0.75 GU","0.50-0.75 OBF","0.50-0.75 PO",'0.50-0.75 CP 1%','0.50-0.75 CP 5%','0.50-0.75 CP 10%','0.50-0.75 CP 20%')) 
+
+#generate table
+dat_final_output_tab_relative_no25 %>%
+  kbl(caption = "**Table S4: Relative Simulation Results Comparing Upstrapping to Conditional Power with Two Stopping Points**",
+      col.names = c('Method','N',
+                    'Expected N Ratio','Type I Error Difference',
+                    'Expected N Ratio','Power Difference')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 2, "***Null***" = 2, "***Alternative***" = 2))
+```
+
+### Data Visualizations
+
+```{r figures 2,fig.show="hold", out.width="33%",fig.cap='**Figure S2:** Bar Plots Comparing Upstrapping to Conditional Power with Two Stopping Points',fig.align='center'}
+#reformat for visual summary 
+dat_final_output_fig_no25 <- dat_final_output_fig_orig %>% 
+  filter(Method %in% c("0.50-0.75 CU","0.50-0.75 AU","0.50-0.75 GU","0.50-0.75 OBF","0.50-0.75 PO",'0.50-0.75 CP 1%','0.50-0.75 CP 5%','0.50-0.75 CP 10%','0.50-0.75 CP 20%','FS'))
+
+#bar plots
+ggplot(dat_final_output_fig_no25, aes(x=Method, y=ExpectedN_FO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FO_mean-ExpectedN_FO_sd, ymax=ExpectedN_FO_mean+ExpectedN_FO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size')
+
+ggplot(dat_final_output_fig_no25, aes(x=Method, y=RejectionRate_FO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate') +
+  ylim(0,1)
+
+ggplot(dat_final_output_fig_no25, aes(x=Method, y=DecisionFO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Interim Stopping Rate') +
+  ylim(0,1)
+
+```
+
+```{r render, eval=FALSE}
+#render report to separate directory
+rmarkdown::render(
+  'C:/Users/wildje/Desktop/Dissertation/Paper 1/02 Code/04_PrimaryDataAnalysis_ConditionalPowerReport.Rmd', 
+  output_file = 'C:/Users/wildje/Desktop/Dissertation/Paper 1/03 Reports/04_PrimaryDataAnalysis_ConditionalPowerReport.html')
+```

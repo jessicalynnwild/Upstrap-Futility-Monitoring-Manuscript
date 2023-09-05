@@ -1,0 +1,1027 @@
+---
+title: "Upstrap Calibration Simulation: Calibration Correction & Two Stopping Point Results"
+author: 'Jess Wild'
+date: "04/12/2023"
+output: html_document
+self_contained: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r workspace setup, message=FALSE,warning=FALSE}
+#import packages
+library(tidyverse)
+library(kableExtra)
+
+#set working directory
+setwd('C:/Users/wildje/Desktop/Dissertation/Paper 1')
+
+#load data
+load('./01 Data/Upstrap 10-3-2022 Results/SettingsData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/CorrectedCalibrationSettingsData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/Power.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/ConsolidatedFinalOutputData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/FinalResultsDataNo25.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/FinalResultsCorrectedCalibratedDataAU.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/0.50-0.75FinalResultsCorrectedCalibratedDataAU.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/FinalResultsCorrectedCalibratedDataCU.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/0.50-0.75FinalResultsCorrectedCalibratedDataCU.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/FinalResultsCorrectedCalibratedDataGU.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/0.50-0.75FinalResultsCorrectedCalibratedDataGU.RData')
+```
+
+# Calibration Correction Formulae
+
+There were five multiplicative and two exponential calibration corrections considered, which were defined as follows based on the uncorrected proportion threshold ($P$) and the total number of interim looks ($k=4$) including the final analysis and all three planned interim stopping points:
+
+\[P'_{futility}=
+ \begin{cases} 
+      \frac{P}{k+1} & M1 \\
+      \frac{P}{k} & M2 \\
+      \frac{P}{k-1} & M3 \\
+      \frac{P}{k-1.5} & M4\\
+      \frac{P}{k-2} & M5\\
+      P^{0.95} & E1\\
+      P^{0.70} & E2
+   \end{cases}
+P'_{efficacy}=
+ \begin{cases} 
+      P+\frac{1-P}{k+1} & M1 \\
+      P+\frac{1-P}{k} & M2 \\
+      P+\frac{1-P}{k-1} & M3 \\
+      P+\frac{1-P}{k-1.5} & M4\\
+      P+\frac{1-P}{k-2} & M5\\
+      P^{1-0.95} & E1\\
+      P^{1-0.70} & E2
+   \end{cases}
+\]
+
+# Results for Three Stopping Point Calibrated Upstrapping Thresholds With Proportion Corrections
+
+```{r AU calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_AU %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','AU','OBF'), 
+                         levels = c("Arbitrary Upstrap M1","Arbitrary Upstrap M2","Arbitrary Upstrap M3","Arbitrary Upstrap M4","Arbitrary Upstrap M5","Arbitrary Upstrap E1","Arbitrary Upstrap E2","Arbitrary Upstrap","OBrien Fleming GSD"))) %>%
+  mutate(ExpectedN_FO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FO_mean), round(ExpectedN_FO_sd,2)),
+         ExpectedN_EO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_EO_mean), round(ExpectedN_EO_sd,2)),
+         ExpectedN_FE_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FE_mean), round(ExpectedN_FE_sd,2))) %>%
+  select(n,power,Method,ExpectedN_FO_MeanSD,DecisionFO,RejectionRate_FO_FS,ExpectedN_EO_MeanSD,DecisionEO,RejectionRate_EO_FS,ExpectedN_FE_MeanSD,DecisionFE,DecisionFE_F,DecisionFE_E,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          rename(RejectionRate_Fixed_FS = Power) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using AU Calibrated Upstrapping Thresholds With Three Stopping Points & Proportion Corrections**",
+      col.names = c('N', '$\\beta$','Method','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Stopped (Futility)','Proportion Stopped (Efficacy)','Proportion Rejected','Proportion Rejected')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(4, width_min = '3cm') %>%
+  column_spec(7, width_min = '3cm') %>%
+  column_spec(10, width_min = '3cm') %>%
+  add_header_above(c(" " = 3, "***Futility Only Monitoring***" = 3, "***Efficacy Only Monitoring***" = 3, "***Futility and Efficacy Monitoring***" = 5, "***Fixed Sample***" = 1))
+```
+
+```{r CU calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_CU %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','CU','OBF'), 
+                         levels = c("Calibrated Upstrap M1","Calibrated Upstrap M2","Calibrated Upstrap M3","Calibrated Upstrap M4","Calibrated Upstrap M5","Calibrated Upstrap E1","Calibrated Upstrap E2","Calibrated Upstrap","OBrien Fleming GSD"))) %>%
+  mutate(ExpectedN_FO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FO_mean), round(ExpectedN_FO_sd,2)),
+         ExpectedN_EO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_EO_mean), round(ExpectedN_EO_sd,2)),
+         ExpectedN_FE_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FE_mean), round(ExpectedN_FE_sd,2))) %>%
+  select(n,power,Method,ExpectedN_FO_MeanSD,DecisionFO,RejectionRate_FO_FS,ExpectedN_EO_MeanSD,DecisionEO,RejectionRate_EO_FS,ExpectedN_FE_MeanSD,DecisionFE,DecisionFE_F,DecisionFE_E,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          rename(RejectionRate_Fixed_FS = Power) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using CU Calibrated Upstrapping Thresholds With Three Stopping Points & Proportion Corrections**",
+      col.names = c('N', '$\\beta$','Method','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Stopped (Futility)','Proportion Stopped (Efficacy)','Proportion Rejected','Proportion Rejected')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(4, width_min = '3cm') %>%
+  column_spec(7, width_min = '3cm') %>%
+  column_spec(10, width_min = '3cm') %>%
+  add_header_above(c(" " = 3, "***Futility Only Monitoring***" = 3, "***Efficacy Only Monitoring***" = 3, "***Futility and Efficacy Monitoring***" = 5, "***Fixed Sample***" = 1))
+```
+
+```{r GU calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_GU %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','GU','OBF'), 
+                         levels = c("AB Upstrap M1","AB Upstrap M2","AB Upstrap M3","AB Upstrap M4","AB Upstrap M5","AB Upstrap E1","AB Upstrap E2","Alpha Beta Spending","OBrien Fleming GSD"))) %>%
+  mutate(ExpectedN_FO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FO_mean), round(ExpectedN_FO_sd,2)),
+         ExpectedN_EO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_EO_mean), round(ExpectedN_EO_sd,2)),
+         ExpectedN_FE_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FE_mean), round(ExpectedN_FE_sd,2))) %>%
+  select(n,power,Method,ExpectedN_FO_MeanSD,DecisionFO,RejectionRate_FO_FS,ExpectedN_EO_MeanSD,DecisionEO,RejectionRate_EO_FS,ExpectedN_FE_MeanSD,DecisionFE,DecisionFE_F,DecisionFE_E,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          rename(RejectionRate_Fixed_FS = Power) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using GU Calibrated Upstrapping Thresholds With Three Stopping Points & Proportion Corrections**",
+      col.names = c('N', '$\\beta$','Method','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Stopped (Futility)','Proportion Stopped (Efficacy)','Proportion Rejected','Proportion Rejected')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(4, width_min = '3cm') %>%
+  column_spec(7, width_min = '3cm') %>%
+  column_spec(10, width_min = '3cm') %>%
+  add_header_above(c(" " = 3, "***Futility Only Monitoring***" = 3, "***Efficacy Only Monitoring***" = 3, "***Futility and Efficacy Monitoring***" = 5, "***Fixed Sample***" = 1))
+```
+
+# Results for Two Stopping Point Calibrated Upstrapping Thresholds With Proportion Corrections
+
+```{r AU (no 25) calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_AU_no25 %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','AU','OBF'), 
+                         levels = c("0.50-0.75 Arbitrary Upstrap M1","0.50-0.75 Arbitrary Upstrap M2","0.50-0.75 Arbitrary Upstrap M3","0.50-0.75 Arbitrary Upstrap M4","0.50-0.75 Arbitrary Upstrap M5","0.50-0.75 Arbitrary Upstrap E1","0.50-0.75 Arbitrary Upstrap E2","0.50-0.75 Arbitrary Upstrap","OBrien Fleming GSD"))) %>%
+  mutate(ExpectedN_FO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FO_mean), round(ExpectedN_FO_sd,2)),
+         ExpectedN_EO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_EO_mean), round(ExpectedN_EO_sd,2)),
+         ExpectedN_FE_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FE_mean), round(ExpectedN_FE_sd,2))) %>%
+  select(n,power,Method,ExpectedN_FO_MeanSD,DecisionFO,RejectionRate_FO_FS,ExpectedN_EO_MeanSD,DecisionEO,RejectionRate_EO_FS,ExpectedN_FE_MeanSD,DecisionFE,DecisionFE_F,DecisionFE_E,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          rename(RejectionRate_Fixed_FS = Power) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using AU Calibrated Upstrapping Thresholds With Two Stopping Points & Proportion Corrections**",
+      col.names = c('N', '$\\beta$','Method','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Stopped (Futility)','Proportion Stopped (Efficacy)','Proportion Rejected','Proportion Rejected')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(4, width_min = '3cm') %>%
+  column_spec(7, width_min = '3cm') %>%
+  column_spec(10, width_min = '3cm') %>%
+  add_header_above(c(" " = 3, "***Futility Only Monitoring***" = 3, "***Efficacy Only Monitoring***" = 3, "***Futility and Efficacy Monitoring***" = 5, "***Fixed Sample***" = 1))
+```
+
+```{r CU (no 25) calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_CU_no25 %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','CU','OBF'), 
+                         levels = c("0.50-0.75 Calibrated Upstrap M1","0.50-0.75 Calibrated Upstrap M2","0.50-0.75 Calibrated Upstrap M3","0.50-0.75 Calibrated Upstrap M4","0.50-0.75 Calibrated Upstrap M5","0.50-0.75 Calibrated Upstrap E1","0.50-0.75 Calibrated Upstrap E2","0.50-0.75 Calibrated Upstrap","OBrien Fleming GSD"))) %>%
+  mutate(ExpectedN_FO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FO_mean), round(ExpectedN_FO_sd,2)),
+         ExpectedN_EO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_EO_mean), round(ExpectedN_EO_sd,2)),
+         ExpectedN_FE_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FE_mean), round(ExpectedN_FE_sd,2))) %>%
+  select(n,power,Method,ExpectedN_FO_MeanSD,DecisionFO,RejectionRate_FO_FS,ExpectedN_EO_MeanSD,DecisionEO,RejectionRate_EO_FS,ExpectedN_FE_MeanSD,DecisionFE,DecisionFE_F,DecisionFE_E,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          rename(RejectionRate_Fixed_FS = Power) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using CU Calibrated Upstrapping Thresholds With Two Stopping Points & Proportion Corrections**",
+      col.names = c('N', '$\\beta$','Method','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Stopped (Futility)','Proportion Stopped (Efficacy)','Proportion Rejected','Proportion Rejected')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(4, width_min = '3cm') %>%
+  column_spec(7, width_min = '3cm') %>%
+  column_spec(10, width_min = '3cm') %>%
+  add_header_above(c(" " = 3, "***Futility Only Monitoring***" = 3, "***Efficacy Only Monitoring***" = 3, "***Futility and Efficacy Monitoring***" = 5, "***Fixed Sample***" = 1))
+```
+
+```{r GU (no 25) calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_GU_no25 %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','GU','OBF'), 
+                         levels = c("0.50-0.75 AB Upstrap M1","0.50-0.75 AB Upstrap M2","0.50-0.75 AB Upstrap M3","0.50-0.75 AB Upstrap M4","0.50-0.75 AB Upstrap M5","0.50-0.75 AB Upstrap E1","0.50-0.75 AB Upstrap E2","0.50-0.75 AB Calibrated Upstrap","OBrien Fleming GSD"))) %>%
+  mutate(ExpectedN_FO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FO_mean), round(ExpectedN_FO_sd,2)),
+         ExpectedN_EO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_EO_mean), round(ExpectedN_EO_sd,2)),
+         ExpectedN_FE_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FE_mean), round(ExpectedN_FE_sd,2))) %>%
+  select(n,power,Method,ExpectedN_FO_MeanSD,DecisionFO,RejectionRate_FO_FS,ExpectedN_EO_MeanSD,DecisionEO,RejectionRate_EO_FS,ExpectedN_FE_MeanSD,DecisionFE,DecisionFE_F,DecisionFE_E,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          rename(RejectionRate_Fixed_FS = Power) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using GU Calibrated Upstrapping Thresholds With Two Stopping Points & Proportion Corrections**",
+      col.names = c('N', '$\\beta$','Method','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Stopped (Futility)','Proportion Stopped (Efficacy)','Proportion Rejected','Proportion Rejected')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(4, width_min = '3cm') %>%
+  column_spec(7, width_min = '3cm') %>%
+  column_spec(10, width_min = '3cm') %>%
+  add_header_above(c(" " = 3, "***Futility Only Monitoring***" = 3, "***Efficacy Only Monitoring***" = 3, "***Futility and Efficacy Monitoring***" = 5, "***Fixed Sample***" = 1))
+```
+
+# Results for Two Stopping Point Calibrated Upstrapping Thresholds Without Proportion Corrections
+
+```{r (no 25) calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_no25 %>%
+  mutate(Method = factor(Method, 
+                         labels = c('AU','CU','GU','OBF'), 
+                         levels = c("0.50-0.75 Arbitrary Upstrap","0.50-0.75 Calibrated Upstrap","0.50-0.75 AB Calbrated Upstrap","OBrien Fleming GSD"))) %>%
+  mutate(ExpectedN_FO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FO_mean), round(ExpectedN_FO_sd,2)),
+         ExpectedN_EO_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_EO_mean), round(ExpectedN_EO_sd,2)),
+         ExpectedN_FE_MeanSD = sprintf("%0.00f (%0.02f)", ceiling(ExpectedN_FE_mean), round(ExpectedN_FE_sd,2))) %>%
+  select(n,power,Method,ExpectedN_FO_MeanSD,DecisionFO,RejectionRate_FO_FS,ExpectedN_EO_MeanSD,DecisionEO,RejectionRate_EO_FS,ExpectedN_FE_MeanSD,DecisionFE,DecisionFE_F,DecisionFE_E,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          rename(RejectionRate_Fixed_FS = Power) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results With Two Stopping Points & Without Proportion Corrections**",
+      col.names = c('N', '$\\beta$','Method','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Rejected','Expected N *mean(sd)*','Proportion Stopped','Proportion Stopped (Futility)','Proportion Stopped (Efficacy)','Proportion Rejected','Proportion Rejected')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  column_spec(4, width_min = '3cm') %>%
+  column_spec(7, width_min = '3cm') %>%
+  column_spec(10, width_min = '3cm') %>%
+  add_header_above(c(" " = 3, "***Futility Only Monitoring***" = 3, "***Efficacy Only Monitoring***" = 3, "***Futility and Efficacy Monitoring***" = 5, "***Fixed Sample***" = 1))
+```
+
+# Fixed Sample Relative Results for Three Stopping Point Calibrated Upstrapping Thresholds With Proportion Corrections
+
+```{r relative AU calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_AU %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','AU','OBF'), 
+                         levels = c("Arbitrary Upstrap M1","Arbitrary Upstrap M2","Arbitrary Upstrap M3","Arbitrary Upstrap M4","Arbitrary Upstrap M5","Arbitrary Upstrap E1","Arbitrary Upstrap E2","Arbitrary Upstrap","OBrien Fleming GSD"))) %>%
+  select(n,power,Method,ExpectedN_FO_mean,RejectionRate_FO_FS,ExpectedN_EO_mean,RejectionRate_EO_FS,ExpectedN_FE_mean,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  mutate(RelativeExpectedN_FO_mean = round(ceiling(ExpectedN_FO_mean)/n,2),
+         RelativeExpectedN_EO_mean = round(ceiling(ExpectedN_EO_mean)/n,2),
+         RelativeExpectedN_FE_mean = round(ceiling(ExpectedN_FE_mean)/n,2),
+         RelativeRejectionRate_FO_FS = RejectionRate_FO_FS - Power,
+         RelativeRejectionRate_EO_FS = RejectionRate_EO_FS - Power,
+         RelativeRejectionRate_FE_FS = RejectionRate_FE_FS - Power) %>%
+  select(-ExpectedN_FO_mean,-RejectionRate_FO_FS,-ExpectedN_EO_mean,-RejectionRate_EO_FS,-ExpectedN_FE_mean,-RejectionRate_FE_FS,-Power) %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using AU Calibrated Upstrapping Thresholds With Three Stopping Points & Proportion Corrections Relative to Fixed Sample Design**",
+      col.names = c('N', '$\\beta$','Method','FO Monitoring','EO Monitoring','FE Monitoring','FO Monitoring','EO Monitoring','FE Monitoring')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 3, "***Expected N Ratio***" = 3, "***Rejection Rate Difference***" = 3))
+```
+
+```{r relative CU calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_CU %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','CU','OBF'), 
+                         levels = c("Calibrated Upstrap M1","Calibrated Upstrap M2","Calibrated Upstrap M3","Calibrated Upstrap M4","Calibrated Upstrap M5","Calibrated Upstrap E1","Calibrated Upstrap E2","Calibrated Upstrap","OBrien Fleming GSD"))) %>%
+  select(n,power,Method,ExpectedN_FO_mean,RejectionRate_FO_FS,ExpectedN_EO_mean,RejectionRate_EO_FS,ExpectedN_FE_mean,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  mutate(RelativeExpectedN_FO_mean = round(ceiling(ExpectedN_FO_mean)/n,2),
+         RelativeExpectedN_EO_mean = round(ceiling(ExpectedN_EO_mean)/n,2),
+         RelativeExpectedN_FE_mean = round(ceiling(ExpectedN_FE_mean)/n,2),
+         RelativeRejectionRate_FO_FS = RejectionRate_FO_FS - Power,
+         RelativeRejectionRate_EO_FS = RejectionRate_EO_FS - Power,
+         RelativeRejectionRate_FE_FS = RejectionRate_FE_FS - Power) %>%
+  select(-ExpectedN_FO_mean,-RejectionRate_FO_FS,-ExpectedN_EO_mean,-RejectionRate_EO_FS,-ExpectedN_FE_mean,-RejectionRate_FE_FS,-Power) %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using CU Calibrated Upstrapping Thresholds With Three Stopping Points & Proportion Corrections Relative to Fixed Sample Design**",
+      col.names = c('N', '$\\beta$','Method','FO Monitoring','EO Monitoring','FE Monitoring','FO Monitoring','EO Monitoring','FE Monitoring')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 3, "***Expected N Ratio***" = 3, "***Rejection Rate Difference***" = 3))
+```
+
+```{r relative GU calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_GU %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','GU','OBF'), 
+                         levels = c("AB Upstrap M1","AB Upstrap M2","AB Upstrap M3","AB Upstrap M4","AB Upstrap M5","AB Upstrap E1","AB Upstrap E2","Alpha Beta Spending","OBrien Fleming GSD"))) %>%
+  select(n,power,Method,ExpectedN_FO_mean,RejectionRate_FO_FS,ExpectedN_EO_mean,RejectionRate_EO_FS,ExpectedN_FE_mean,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  mutate(RelativeExpectedN_FO_mean = round(ceiling(ExpectedN_FO_mean)/n,2),
+         RelativeExpectedN_EO_mean = round(ceiling(ExpectedN_EO_mean)/n,2),
+         RelativeExpectedN_FE_mean = round(ceiling(ExpectedN_FE_mean)/n,2),
+         RelativeRejectionRate_FO_FS = RejectionRate_FO_FS - Power,
+         RelativeRejectionRate_EO_FS = RejectionRate_EO_FS - Power,
+         RelativeRejectionRate_FE_FS = RejectionRate_FE_FS - Power) %>%
+  select(-ExpectedN_FO_mean,-RejectionRate_FO_FS,-ExpectedN_EO_mean,-RejectionRate_EO_FS,-ExpectedN_FE_mean,-RejectionRate_FE_FS,-Power) %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using GU Calibrated Upstrapping Thresholds With Three Stopping Points & Proportion Corrections Relative to Fixed Sample Design**",
+      col.names = c('N', '$\\beta$','Method','FO Monitoring','EO Monitoring','FE Monitoring','FO Monitoring','EO Monitoring','FE Monitoring')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 3, "***Expected N Ratio***" = 3, "***Rejection Rate Difference***" = 3))
+```
+
+# Fixed Sample Relative Results for Two Stopping Point Calibrated Upstrapping Thresholds With Proportion Corrections
+
+```{r relative AU (no 25) calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_AU_no25 %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','AU','OBF'), 
+                         levels = c("0.50-0.75 Arbitrary Upstrap M1","0.50-0.75 Arbitrary Upstrap M2","0.50-0.75 Arbitrary Upstrap M3","0.50-0.75 Arbitrary Upstrap M4","0.50-0.75 Arbitrary Upstrap M5","0.50-0.75 Arbitrary Upstrap E1","0.50-0.75 Arbitrary Upstrap E2","0.50-0.75 Arbitrary Upstrap","OBrien Fleming GSD"))) %>%
+  select(n,power,Method,ExpectedN_FO_mean,RejectionRate_FO_FS,ExpectedN_EO_mean,RejectionRate_EO_FS,ExpectedN_FE_mean,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  mutate(RelativeExpectedN_FO_mean = round(ceiling(ExpectedN_FO_mean)/n,2),
+         RelativeExpectedN_EO_mean = round(ceiling(ExpectedN_EO_mean)/n,2),
+         RelativeExpectedN_FE_mean = round(ceiling(ExpectedN_FE_mean)/n,2),
+         RelativeRejectionRate_FO_FS = RejectionRate_FO_FS - Power,
+         RelativeRejectionRate_EO_FS = RejectionRate_EO_FS - Power,
+         RelativeRejectionRate_FE_FS = RejectionRate_FE_FS - Power) %>%
+  select(-ExpectedN_FO_mean,-RejectionRate_FO_FS,-ExpectedN_EO_mean,-RejectionRate_EO_FS,-ExpectedN_FE_mean,-RejectionRate_FE_FS,-Power) %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using AU Calibrated Upstrapping Thresholds With Two Stopping Points & Proportion Corrections Relative to Fixed Sample Design**",
+      col.names = c('N', '$\\beta$','Method','FO Monitoring','EO Monitoring','FE Monitoring','FO Monitoring','EO Monitoring','FE Monitoring')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 3, "***Expected N Ratio***" = 3, "***Rejection Rate Difference***" = 3))
+```
+
+```{r relative CU (no 25) calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_CU_no25 %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','CU','OBF'), 
+                         levels = c("0.50-0.75 Calibrated Upstrap M1","0.50-0.75 Calibrated Upstrap M2","0.50-0.75 Calibrated Upstrap M3","0.50-0.75 Calibrated Upstrap M4","0.50-0.75 Calibrated Upstrap M5","0.50-0.75 Calibrated Upstrap E1","0.50-0.75 Calibrated Upstrap E2","0.50-0.75 Calibrated Upstrap","OBrien Fleming GSD"))) %>%
+  select(n,power,Method,ExpectedN_FO_mean,RejectionRate_FO_FS,ExpectedN_EO_mean,RejectionRate_EO_FS,ExpectedN_FE_mean,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  mutate(RelativeExpectedN_FO_mean = round(ceiling(ExpectedN_FO_mean)/n,2),
+         RelativeExpectedN_EO_mean = round(ceiling(ExpectedN_EO_mean)/n,2),
+         RelativeExpectedN_FE_mean = round(ceiling(ExpectedN_FE_mean)/n,2),
+         RelativeRejectionRate_FO_FS = RejectionRate_FO_FS - Power,
+         RelativeRejectionRate_EO_FS = RejectionRate_EO_FS - Power,
+         RelativeRejectionRate_FE_FS = RejectionRate_FE_FS - Power) %>%
+  select(-ExpectedN_FO_mean,-RejectionRate_FO_FS,-ExpectedN_EO_mean,-RejectionRate_EO_FS,-ExpectedN_FE_mean,-RejectionRate_FE_FS,-Power) %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using CU Calibrated Upstrapping Thresholds With Two Stopping Points & Proportion Corrections Relative to Fixed Sample Design**",
+      col.names = c('N', '$\\beta$','Method','FO Monitoring','EO Monitoring','FE Monitoring','FO Monitoring','EO Monitoring','FE Monitoring')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 3, "***Expected N Ratio***" = 3, "***Rejection Rate Difference***" = 3))
+```
+
+```{r relative GU (no 25) calibration correction table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_correction_GU_no25 %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','GU','OBF'), 
+                         levels = c("0.50-0.75 AB Upstrap M1","0.50-0.75 AB Upstrap M2","0.50-0.75 AB Upstrap M3","0.50-0.75 AB Upstrap M4","0.50-0.75 AB Upstrap M5","0.50-0.75 AB Upstrap E1","0.50-0.75 AB Upstrap E2","0.50-0.75 AB Calibrated Upstrap","OBrien Fleming GSD"))) %>%
+  select(n,power,Method,ExpectedN_FO_mean,RejectionRate_FO_FS,ExpectedN_EO_mean,RejectionRate_EO_FS,ExpectedN_FE_mean,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  mutate(RelativeExpectedN_FO_mean = round(ceiling(ExpectedN_FO_mean)/n,2),
+         RelativeExpectedN_EO_mean = round(ceiling(ExpectedN_EO_mean)/n,2),
+         RelativeExpectedN_FE_mean = round(ceiling(ExpectedN_FE_mean)/n,2),
+         RelativeRejectionRate_FO_FS = RejectionRate_FO_FS - Power,
+         RelativeRejectionRate_EO_FS = RejectionRate_EO_FS - Power,
+         RelativeRejectionRate_FE_FS = RejectionRate_FE_FS - Power) %>%
+  select(-ExpectedN_FO_mean,-RejectionRate_FO_FS,-ExpectedN_EO_mean,-RejectionRate_EO_FS,-ExpectedN_FE_mean,-RejectionRate_FE_FS,-Power) %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using GU Calibrated Upstrapping Thresholds With Two Stopping Points & Proportion Corrections Relative to Fixed Sample Design**",
+      col.names = c('N', '$\\beta$','Method','FO Monitoring','EO Monitoring','FE Monitoring','FO Monitoring','EO Monitoring','FE Monitoring')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 3, "***Expected N Ratio***" = 3, "***Rejection Rate Difference***" = 3))
+```
+
+# Fixed Sample Relative Results for Two Stopping Point Calibrated Upstrapping Thresholds Without Proportion Corrections
+
+```{r relative (no 25) calibration table, out.width = "10in", warning=FALSE,message=FALSE}
+dat_final_calibration_no25 %>%
+  mutate(Method = factor(Method, 
+                         labels = c('AU','CU','GU','OBF'), 
+                         levels = c("0.50-0.75 Arbitrary Upstrap","0.50-0.75 Calibrated Upstrap","0.50-0.75 AB Calbrated Upstrap","OBrien Fleming GSD"))) %>%
+  select(n,power,Method,ExpectedN_FO_mean,RejectionRate_FO_FS,ExpectedN_EO_mean,RejectionRate_EO_FS,ExpectedN_FE_mean,RejectionRate_FE_FS) %>%
+  left_join(dat_pow_err %>%
+          left_join(dat_setting %>%
+                  select(Setting,n,power),
+                by = 'Setting') %>%
+          select(-Setting) %>%
+          distinct(),
+          by = c('n','power')) %>%
+  select(-Setting) %>%
+  distinct() %>%
+  mutate(RelativeExpectedN_FO_mean = round(ceiling(ExpectedN_FO_mean)/n,2),
+         RelativeExpectedN_EO_mean = round(ceiling(ExpectedN_EO_mean)/n,2),
+         RelativeExpectedN_FE_mean = round(ceiling(ExpectedN_FE_mean)/n,2),
+         RelativeRejectionRate_FO_FS = RejectionRate_FO_FS - Power,
+         RelativeRejectionRate_EO_FS = RejectionRate_EO_FS - Power,
+         RelativeRejectionRate_FE_FS = RejectionRate_FE_FS - Power) %>%
+  select(-ExpectedN_FO_mean,-RejectionRate_FO_FS,-ExpectedN_EO_mean,-RejectionRate_EO_FS,-ExpectedN_FE_mean,-RejectionRate_FE_FS,-Power) %>%
+  arrange(n,power) %>%
+  filter(power %in% c(0.05,0.80)) %>%
+  kbl(caption = "**Simulation Results Using Calibrated Upstrapping Thresholds With Two Stopping Points & Without Proportion Corrections Relative to Fixed Sample Design**",
+      col.names = c('N', '$\\beta$','Method','FO Monitoring','EO Monitoring','FE Monitoring','FO Monitoring','EO Monitoring','FE Monitoring')) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" " = 3, "***Expected N Ratio***" = 3, "***Rejection Rate Difference***" = 3))
+```
+
+# Data Visualizations: Barplots
+
+```{r AU barplots,fig.show="hold", out.width="33%", fig.cap='AU with all stopping points'}
+#reformat for plotting 
+dat_final_output_orig <- dat_final_calibration_correction_AU
+dat_final_output <- dat_final_output_orig %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','AU','OBF'), 
+                         levels = c("Arbitrary Upstrap M1","Arbitrary Upstrap M2","Arbitrary Upstrap M3","Arbitrary Upstrap M4","Arbitrary Upstrap M5","Arbitrary Upstrap E1","Arbitrary Upstrap E2","Arbitrary Upstrap","OBrien Fleming GSD")))
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FO_mean-ExpectedN_FO_sd, ymax=ExpectedN_FO_mean+ExpectedN_FO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_EO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_EO_mean-ExpectedN_EO_sd, ymax=ExpectedN_EO_mean+ExpectedN_EO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FE_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FE_mean-ExpectedN_FE_sd, ymax=ExpectedN_FE_mean+ExpectedN_FE_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_EO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FE_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionEO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_F, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Futility (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_E, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Efficacy (FE)')
+```
+
+```{r CU barplots,fig.show="hold", out.width="33%", fig.cap='CU with all stopping points'}
+#reformat for plotting 
+dat_final_output_orig <- dat_final_calibration_correction_CU
+dat_final_output <- dat_final_output_orig %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','CU','OBF'), 
+                         levels = c("Calibrated Upstrap M1","Calibrated Upstrap M2","Calibrated Upstrap M3","Calibrated Upstrap M4","Calibrated Upstrap M5","Calibrated Upstrap E1","Calibrated Upstrap E2","Calibrated Upstrap","OBrien Fleming GSD")))
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FO_mean-ExpectedN_FO_sd, ymax=ExpectedN_FO_mean+ExpectedN_FO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_EO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_EO_mean-ExpectedN_EO_sd, ymax=ExpectedN_EO_mean+ExpectedN_EO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FE_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FE_mean-ExpectedN_FE_sd, ymax=ExpectedN_FE_mean+ExpectedN_FE_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_EO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FE_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionEO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_F, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Futility (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_E, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Efficacy (FE)')
+```
+
+```{r GU barplots,fig.show="hold", out.width="33%", fig.cap='GU with all stopping points'}
+#reformat for plotting 
+dat_final_output_orig <- dat_final_calibration_correction_GU
+dat_final_output <- dat_final_output_orig %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','GU','OBF'), 
+                         levels = c("AB Upstrap M1","AB Upstrap M2","AB Upstrap M3","AB Upstrap M4","AB Upstrap M5","AB Upstrap E1","AB Upstrap E2","Alpha Beta Spending","OBrien Fleming GSD")))
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FO_mean-ExpectedN_FO_sd, ymax=ExpectedN_FO_mean+ExpectedN_FO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_EO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_EO_mean-ExpectedN_EO_sd, ymax=ExpectedN_EO_mean+ExpectedN_EO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FE_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FE_mean-ExpectedN_FE_sd, ymax=ExpectedN_FE_mean+ExpectedN_FE_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_EO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FE_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionEO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_F, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Futility (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_E, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Efficacy (FE)')
+```
+
+```{r AU (no 25) barplots,fig.show="hold", out.width="33%", fig.cap='AU without 0.25 stopping point'}
+#reformat for plotting 
+dat_final_output_orig <- dat_final_calibration_correction_AU_no25
+dat_final_output <- dat_final_output_orig %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','AU','OBF'), 
+                         levels = c("0.50-0.75 Arbitrary Upstrap M1","0.50-0.75 Arbitrary Upstrap M2","0.50-0.75 Arbitrary Upstrap M3","0.50-0.75 Arbitrary Upstrap M4","0.50-0.75 Arbitrary Upstrap M5","0.50-0.75 Arbitrary Upstrap E1","0.50-0.75 Arbitrary Upstrap E2","0.50-0.75 Arbitrary Upstrap","OBrien Fleming GSD")))
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FO_mean-ExpectedN_FO_sd, ymax=ExpectedN_FO_mean+ExpectedN_FO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_EO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_EO_mean-ExpectedN_EO_sd, ymax=ExpectedN_EO_mean+ExpectedN_EO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FE_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FE_mean-ExpectedN_FE_sd, ymax=ExpectedN_FE_mean+ExpectedN_FE_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_EO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FE_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionEO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_F, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Futility (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_E, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Efficacy (FE)')
+```
+
+```{r CU (no 25) barplots,fig.show="hold", out.width="33%", fig.cap='CU without 0.25 stopping point'}
+#reformat for plotting 
+dat_final_output_orig <- dat_final_calibration_correction_CU_no25
+dat_final_output <- dat_final_output_orig %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','CU','OBF'), 
+                         levels = c("0.50-0.75 Calibrated Upstrap M1","0.50-0.75 Calibrated Upstrap M2","0.50-0.75 Calibrated Upstrap M3","0.50-0.75 Calibrated Upstrap M4","0.50-0.75 Calibrated Upstrap M5","0.50-0.75 Calibrated Upstrap E1","0.50-0.75 Calibrated Upstrap E2","0.50-0.75 Calibrated Upstrap","OBrien Fleming GSD")))
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FO_mean-ExpectedN_FO_sd, ymax=ExpectedN_FO_mean+ExpectedN_FO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_EO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_EO_mean-ExpectedN_EO_sd, ymax=ExpectedN_EO_mean+ExpectedN_EO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FE_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FE_mean-ExpectedN_FE_sd, ymax=ExpectedN_FE_mean+ExpectedN_FE_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_EO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FE_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionEO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_F, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Futility (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_E, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Efficacy (FE)')
+```
+
+```{r GU (no 25) barplots,fig.show="hold", out.width="33%", fig.cap='GU without 0.25 stopping point'}
+#reformat for plotting 
+dat_final_output_orig <- dat_final_calibration_correction_GU_no25
+dat_final_output <- dat_final_output_orig %>%
+  mutate(Method = factor(Method, 
+                         labels = c('M1','M2','M3','M4','M5','E1','E2','GU','OBF'), 
+                         levels = c("0.50-0.75 AB Upstrap M1","0.50-0.75 AB Upstrap M2","0.50-0.75 AB Upstrap M3","0.50-0.75 AB Upstrap M4","0.50-0.75 AB Upstrap M5","0.50-0.75 AB Upstrap E1","0.50-0.75 AB Upstrap E2","0.50-0.75 AB Calibrated Upstrap","OBrien Fleming GSD")))
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FO_mean-ExpectedN_FO_sd, ymax=ExpectedN_FO_mean+ExpectedN_FO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_EO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_EO_mean-ExpectedN_EO_sd, ymax=ExpectedN_EO_mean+ExpectedN_EO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=ExpectedN_FE_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FE_mean-ExpectedN_FE_sd, ymax=ExpectedN_FE_mean+ExpectedN_FE_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_EO_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=RejectionRate_FE_FS, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionEO, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (EO)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_F, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Futility (FE)')
+
+ggplot(dat_final_output, aes(x=Method, y=DecisionFE_E, fill = Method)) + 
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Decision: Efficacy (FE)')
+```

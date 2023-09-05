@@ -1,0 +1,314 @@
+---
+title: "Upstrap Calibration Simulation: Tables & Visualizations"
+author: 'Jess Wild'
+date: "12/08/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r workspace setup, message=FALSE,warning=FALSE}
+#import packages
+library(tidyverse)
+library(lattice) #for heatmaps
+library(latticeExtra) #for heatmaps
+library(grid) #for heatmaps
+library(gridExtra) #for heatmaps
+library(kableExtra)
+
+#set working directory
+setwd('C:/Users/wildje/Desktop/Projects/TREATNOW')
+
+#load data
+load('./01 Data/Upstrap 10-3-2022 Results/SettingsData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/HeatmapData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/Power.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/ArbitraryCalibrationData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/StrictlyFixedPValueCalibrationData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/FixedPValueCalibrationData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/StrictlyFixedProportionCalibrationData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/FixedProportionCalibrationData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/VariableCalibrationData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/CalibratedUpstrapResultsData.RData')
+load('./01 Data/Upstrap 10-3-2022 Results/ArbitraryUpstrapResultsData.RData')
+```
+
+# Simulation Settings and Rejection Rate Comparison Table
+
+```{r setting table}
+dat_setting %>%
+  rename(`Interim Fraction`=interim_fraction) %>%
+  rename(`Planned FSRR`=power) %>%
+  merge(dat_pow_err, by = 'Setting') %>%
+  rename(`Observed FSRR`=Power) %>%
+  select(Setting, n, `Interim Fraction`, RR, `Planned FSRR`, `Observed FSRR`) %>%
+  kbl(caption = "Simulation Setting Parameters") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  footnote(general = c("Full Sample Rejection Rate (FSRR): represents","statistical power in the alternative case and","type I error in the null case.","Relative Risk (RR): represents the realtive risk of","the outcome for the treatment group compared to the","control group.  RR = 1.0 indicates a null scenario,","RR = 0.8 indicates an alternative scenario"),
+           general_title = "")
+```
+
+```{r heatmap figure generation, include=FALSE,warning=FALSE,message=FALSE}
+#generate heatmaps for each simulation setting
+plot_S1 <- levelplot(Setting1 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S2 <- levelplot(Setting2 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S3 <- levelplot(Setting3 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S4 <- levelplot(Setting4 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.25",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S5 <- levelplot(Setting5 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S6 <- levelplot(Setting6 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S7 <- levelplot(Setting7 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S8 <- levelplot(Setting8 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.25",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S9 <- levelplot(Setting9 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S10 <- levelplot(Setting10 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S11 <- levelplot(Setting11 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S12 <- levelplot(Setting12 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.25",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S13 <- levelplot(Setting13 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S14 <- levelplot(Setting14 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S15 <- levelplot(Setting15 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S16 <- levelplot(Setting16 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.25",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S17 <- levelplot(Setting17 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S18 <- levelplot(Setting18 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S19 <- levelplot(Setting19 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S20 <- levelplot(Setting20 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.50",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S21 <- levelplot(Setting21 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S22 <- levelplot(Setting22 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S23 <- levelplot(Setting23 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S24 <- levelplot(Setting24 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.50",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S25 <- levelplot(Setting25 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S26 <- levelplot(Setting26 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S27 <- levelplot(Setting27 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S28 <- levelplot(Setting28 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.50",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S29 <- levelplot(Setting29 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S30 <- levelplot(Setting30 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S31 <- levelplot(Setting31 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S32 <- levelplot(Setting32 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.50",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S33 <- levelplot(Setting33 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S34 <- levelplot(Setting34 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S35 <- levelplot(Setting35 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S36 <- levelplot(Setting36 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.75",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S37 <- levelplot(Setting37 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S38 <- levelplot(Setting38 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S39 <- levelplot(Setting39 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S40 <- levelplot(Setting40 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.75",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S41 <- levelplot(Setting41 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S42 <- levelplot(Setting42 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S43 <- levelplot(Setting43 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S44 <- levelplot(Setting44 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.75",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S45 <- levelplot(Setting45 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S46 <- levelplot(Setting46 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S47 <- levelplot(Setting47 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S48 <- levelplot(Setting48 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.75",panel = panel.levelplot.points, cex = 0) + 
+  layer_(panel.2dsmoother(..., n = 200))
+```
+
+# Heatmap Figures: 5% Type I Error (Null Scenarios)
+
+```{r figure 1, fig.height = 15, fig.width = 20, fig.align = "center"}
+#grid figures: 5% type I error (null scenario)
+n_labels <- tableGrob(c("n = 40", "n = 160", "n = 600", "n = 2000"), theme= ttheme_minimal())
+plots_0.05 <- grid.arrange(plot_S4,plot_S20,plot_S36,
+             plot_S3,plot_S19,plot_S35,
+             plot_S2,plot_S18,plot_S34,
+             plot_S1,plot_S17,plot_S33,
+             ncol=3)
+grid.draw(cbind(n_labels, plots_0.05, size = "last"))
+```
+
+# Heatmap Figures: 50% Power (Alternative Scenarios)
+
+```{r figure 2, fig.height = 15, fig.width = 20, fig.align = "center"}
+#grid figures: 50% power (alternative scenario)
+plots_0.50 <- grid.arrange(plot_S8,plot_S24,plot_S40,
+             plot_S7,plot_S23,plot_S39,
+             plot_S6,plot_S22,plot_S38,
+             plot_S5,plot_S21,plot_S37,
+             ncol=3)
+grid.draw(cbind(n_labels, plots_0.50, size = "last"))
+```
+
+# Heatmap Figures: 80% Power (Alternative Scenarios)
+
+```{r figure 3, fig.height = 15, fig.width = 20, fig.align = "center"}
+#grid figures: 80% power (alternative scenario)
+plots_0.80 <- grid.arrange(plot_S12,plot_S28,plot_S44,
+             plot_S11,plot_S27,plot_S43,
+             plot_S10,plot_S26,plot_S42,
+             plot_S9,plot_S25,plot_S41,
+             ncol=3)
+grid.draw(cbind(n_labels, plots_0.80, size = "last"))
+```
+
+# Heatmap Figures: 95% Power (Alternative Scenarios)
+
+```{r figure 4, fig.height = 15, fig.width = 20, fig.align = "center"}
+#grid figures: 95% power (alternative scenario)
+plots_0.95 <- grid.arrange(plot_S16,plot_S32,plot_S48,
+             plot_S15,plot_S31,plot_S47,
+             plot_S14,plot_S30,plot_S46,
+             plot_S13,plot_S29,plot_S45,
+             ncol=3)
+grid.draw(cbind(n_labels, plots_0.95, size = "last"))
+```
+
+# Arbitrary Calibration Table (rough draft)
+
+For arbitrarily selected P = 0.05 and Proportion = 0.05, 0.10, 0.80, or 0.95, the resulting power and type I error rate is shown (done separately for each sample size, interim fraction, and power setting (50%, 80%, 95%)).
+
+```{r arbitrary calibration table}
+dat_calibrate_arbitrary %>%
+  rename(`Interim Fraction`=interim_fraction) %>%
+  kbl(caption = "Arbitrary Calibration Results") %>%
+  kable_classic(full_width = F, html_font = "Cambria") 
+```
+
+# Strictly Fixed P-Value Calibration Table (rough draft)
+
+For fixed P = 0.05, the proportion producing maximum power (with type I error rate <= 0.05) was selected (done separately for each sample size, interim fraction, and power setting (50%, 80%, 95%)).
+
+```{r strictly fixed p calibration table}
+dat_calibrate_pfixedstrict %>%
+  rename(`Interim Fraction`=interim_fraction) %>%
+  kbl(caption = "Strictly Fixed P-Value Calibration Results") %>%
+  kable_classic(full_width = F, html_font = "Cambria") 
+```
+
+# Fixed P-Value Calibration Table (rough draft)
+
+For fixed P <= 0.05, the proportion producing maximum power (with type I error rate <= 0.05) was selected (done separately for each sample size, interim fraction, and power setting (50%, 80%, 95%)).
+
+```{r fixed p calibration table}
+dat_calibrate_pfixed %>%
+  rename(`Interim Fraction`=interim_fraction) %>%
+  kbl(caption = "Fixed P-Value Calibration Results") %>%
+  kable_classic(full_width = F, html_font = "Cambria") 
+```
+
+# Strictly Fixed Proportion Calibration Table (rough draft)
+
+For fixed Proportion = 0.05, 0.10, 0.80, 0.95 the p-value producing maximum power (with type I error rate <= 0.05) was selected (done separately for each sample size, interim fraction, and power setting (50%, 80%, 95%)).
+
+```{r strictly fixed proportion calibration table}
+dat_calibrate_propfixedstrict %>%
+  rename(`Interim Fraction`=interim_fraction) %>%
+  kbl(caption = "Strictly Fixed Proportion Calibration Results") %>%
+  kable_classic(full_width = F, html_font = "Cambria") 
+```
+
+# Fixed Proportion Calibration Table (rough draft)
+
+For fixed Proportion => 0.80, the p-value producing maximum power (with type I error rate <= 0.05) was selected (done separately for each sample size, interim fraction, and power setting (50%, 80%, 95%))
+
+```{r fixed prop calibration table}
+dat_calibrate_propfixed %>%
+  rename(`Interim Fraction`=interim_fraction) %>%
+  kbl(caption = "Fixed Proportion Calibration Results") %>%
+  kable_classic(full_width = F, html_font = "Cambria") 
+```
+
+# Variable Calibration Table (rough draft)
+
+Without fixing either p-value or proportion, the combination producing maximum power (with type I error rate <= 0.05)  was selected (done separately for each sample size, interim fraction, and power setting (50%, 80%, 95%))
+
+```{r variable calibration table}
+dat_calibrate_variable %>%
+  rename(`Interim Fraction`=interim_fraction) %>%
+  kbl(caption = "Variable Calibration Results") %>%
+  kable_classic(full_width = F, html_font = "Cambria") 
+```

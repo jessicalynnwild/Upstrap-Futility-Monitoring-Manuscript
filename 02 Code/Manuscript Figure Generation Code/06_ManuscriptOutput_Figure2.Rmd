@@ -1,0 +1,52 @@
+---
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r workspace setup, message=FALSE,warning=FALSE,include=FALSE}
+#import packages
+library(tidyverse)
+
+#set working directory
+setwd('C:/Users/wildje/Desktop/Dissertation/Paper 1')
+
+#load data
+load('./01 Data/Data Processed/dat_final_output_fig.RData')
+```
+
+```{r barplots,fig.show="hold", out.width="33%",echo=FALSE}
+#reformat for plotting 
+dat_final_output_fig <- dat_final_output_fig %>%
+  filter(Method %in% c('AU','CU','GU','OBF','PO','CP 1%','CP 5%','CP 10%','CP 20%'))
+
+#ESS
+ggplot(dat_final_output_fig, aes(x=Method, y=ExpectedN_FO_mean, fill = Method)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=ExpectedN_FO_mean-ExpectedN_FO_sd, ymax=ExpectedN_FO_mean+ExpectedN_FO_sd), width=.2, position=position_dodge(.9)) +
+  facet_grid(n ~ power, scales="free") +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Expected Sample Size')
+
+#rejection rate
+ggplot(dat_final_output_fig, aes(x=Method, y=RejectionRate_FO_FS, fill = Method)) +
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Rejection Rate') +
+  ylim(0,1)
+
+#stopping proportion
+ggplot(dat_final_output_fig, aes(x=Method, y=DecisionFO, fill = Method)) +
+  geom_bar(stat="identity") +
+  facet_grid(n ~ power) +
+  theme(legend.position = "none",axis.title.y=element_blank(),plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  labs(title = 'Interim Stopping Rate') +
+  ylim(0,1)
+
+```

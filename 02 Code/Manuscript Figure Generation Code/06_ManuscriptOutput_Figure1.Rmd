@@ -1,0 +1,204 @@
+---
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r workspace setup, message=FALSE,warning=FALSE,include=FALSE}
+#import packages
+library(tidyverse)
+library(lattice) #for heatmaps
+library(latticeExtra) #for heatmaps
+library(grid) #for heatmaps
+library(gridExtra) #for heatmaps
+library(kableExtra)
+library(ggplotify)
+library(paletteer)
+
+#set working directory
+setwd('C:/Users/wildje/Desktop/Dissertation/Paper 1')
+
+#load data
+load('./01 Data/Data Processed/dat_heat.RData')
+```
+
+
+
+```{r heatmap figure generation, include=FALSE,warning=FALSE,message=FALSE}
+#set color palette
+palette <- paletteer_c("grDevices::cm.colors", 30, direction = -1)
+#generate heatmaps for each simulation setting
+plot_S1 <- levelplot(Setting1 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S2 <- levelplot(Setting2 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S3 <- levelplot(Setting3 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S4 <- levelplot(Setting4 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.25",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S5 <- levelplot(Setting5 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S6 <- levelplot(Setting6 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S7 <- levelplot(Setting7 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S8 <- levelplot(Setting8 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.25",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S9 <- levelplot(Setting9 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S10 <- levelplot(Setting10 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S11 <- levelplot(Setting11 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S12 <- levelplot(Setting12 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.25",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S13 <- levelplot(Setting13 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S14 <- levelplot(Setting14 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S15 <- levelplot(Setting15 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S16 <- levelplot(Setting16 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.25",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S17 <- levelplot(Setting17 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S18 <- levelplot(Setting18 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S19 <- levelplot(Setting19 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S20 <- levelplot(Setting20 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.50",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S21 <- levelplot(Setting21 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S22 <- levelplot(Setting22 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S23 <- levelplot(Setting23 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S24 <- levelplot(Setting24 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.50",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S25 <- levelplot(Setting25 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S26 <- levelplot(Setting26 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S27 <- levelplot(Setting27 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S28 <- levelplot(Setting28 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.50",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S29 <- levelplot(Setting29 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S30 <- levelplot(Setting30 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S31 <- levelplot(Setting31 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S32 <- levelplot(Setting32 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.50",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S33 <- levelplot(Setting33 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S34 <- levelplot(Setting34 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S35 <- levelplot(Setting35 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S36 <- levelplot(Setting36 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.75",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S37 <- levelplot(Setting37 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S38 <- levelplot(Setting38 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S39 <- levelplot(Setting39 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S40 <- levelplot(Setting40 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.75",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S41 <- levelplot(Setting41 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S42 <- levelplot(Setting42 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S43 <- levelplot(Setting43 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S44 <- levelplot(Setting44 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.75",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S45 <- levelplot(Setting45 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S46 <- levelplot(Setting46 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S47 <- levelplot(Setting47 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+plot_S48 <- levelplot(Setting48 ~ Proportion*P, data=dat_heat  ,xlab="Proportion", ylab='P-Value',
+          main="Stopping Point: 0.75",panel = panel.levelplot.points, cex = 0, col.regions = palette, at=seq(-0.075,1.075, length=15)) + 
+  layer_(panel.2dsmoother(..., n = 200))
+```
+
+```{r figure 5, fig.height = 15, fig.width = 20, fig.show="hold", out.width="50%",echo=FALSE}
+#set up 5% & 80% power results figures side by side
+theme_custom <- ttheme_default(core=list(fg_params=list(rot=90,fontface = "bold",fontsize=16)),
+                  colhead=list(fg_params=list(rot=90,fontface = "bold",fontsize=16)))
+n_labels <- tableGrob(c("","n = 40", "n = 160", "n = 600", "n = 2000"), theme = theme_custom)
+plots_0.05 <- arrangeGrob(grobs = list(
+  plot_S4,plot_S20,plot_S36,
+  plot_S3,plot_S19,plot_S35,
+  plot_S2,plot_S18,plot_S34,
+  plot_S1,plot_S17,plot_S33),
+  ncol = 3,
+  top = textGrob("5% Type I Error",gp = gpar(fontface="bold", fontsize = 16)))
+plots_0.80 <- arrangeGrob(grobs = list(
+  plot_S12,plot_S28,plot_S44,
+  plot_S11,plot_S27,plot_S43,
+  plot_S10,plot_S26,plot_S42,
+  plot_S9,plot_S25,plot_S41),
+  ncol=3,
+  top=textGrob("80% Power",gp = gpar(fontface="bold", fontsize = 16)))
+null_results <- as.ggplot(cbind(n_labels, plots_0.05, size = "last"))
+alternative_results <- as.ggplot(cbind(n_labels, plots_0.80, size = "last"))
+plot(null_results)
+plot(alternative_results)
+```
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
